@@ -181,12 +181,10 @@ textarea.tinp{width:100%;background:rgba(240,232,216,.05);border:1px solid rgba(
         <div class="dots"><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <div class="stag">&Eacute;tape 1 / 4</div>
         <h2 class="stit">Identification</h2>
-        <p class="ssub">Entrez vos informations pour acc&eacute;der &agrave; votre invitation</p>
-        <label class="flbl">Pr&eacute;nom</label>
-        <input type="text" class="finp" id="ipr" placeholder="Votre pr&eacute;nom" autocomplete="given-name">
+        <p class="ssub">Entrez votre num&eacute;ro de t&eacute;l&eacute;phone pour acc&eacute;der &agrave; votre invitation</p>
         <label class="flbl">T&eacute;l&eacute;phone</label>
         <input type="tel" class="finp" id="itl" placeholder="0612345678" autocomplete="tel">
-        <div class="err" id="id-err">Invitation non trouv&eacute;e. V&eacute;rifiez vos informations.</div>
+        <div class="err" id="id-err">Num&eacute;ro non trouv&eacute;. V&eacute;rifiez votre saisie ou contactez les mari&eacute;s.</div>
         <button class="btn-act" onclick="identify()">Acc&eacute;der &agrave; mon invitation &rarr;</button>
       </div>
 
@@ -194,6 +192,12 @@ textarea.tinp{width:100%;background:rgba(240,232,216,.05);border:1px solid rgba(
         <div class="dots"><div class="dot dn"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div></div>
         <div class="stag">&Eacute;tape 2 / 4</div>
         <h2 class="stit" id="wname">Bonjour !</h2>
+        <p class="ssub" id="name-check">Ce n&rsquo;est pas votre pr&eacute;nom&nbsp;? <span onclick="toggleNameEdit()" style="color:#C9A96E;cursor:pointer;text-decoration:underline">Corrigez-le</span></p>
+        <div id="name-edit" style="display:none;margin-bottom:20px">
+          <label class="flbl">Votre pr&eacute;nom</label>
+          <input type="text" class="finp" id="fix-pr" placeholder="Votre pr&eacute;nom" style="margin-bottom:10px">
+          <button class="btn-back" onclick="saveName()" style="margin-top:0">Enregistrer mon pr&eacute;nom</button>
+        </div>
         <p class="ssub">Serez-vous pr&eacute;sent(e) &agrave; notre mariage&nbsp;?</p>
         <div class="crow">
           <div class="choice" id="cy" onclick="selAtt(true)"><div class="clbl">Oui</div><div class="csub">Je serai l&agrave;</div></div>
@@ -431,10 +435,9 @@ function showStep(n){document.querySelectorAll('.step').forEach(function(s,i){s.
 function nph(p){return p.replace(/ /g,'').replace(/^\+33/,'0').replace(/^0033/,'0');}
 
 function identify(){
-  var pr=document.getElementById('ipr').value.trim().toLowerCase();
   var tl=nph(document.getElementById('itl').value.trim());
   var f=null;
-  for(var i=0;i<DB.length;i++){if(DB[i].pr.toLowerCase()===pr&&nph(DB[i].tel)===tl){f=DB[i];break;}}
+  for(var i=0;i<DB.length;i++){if(nph(DB[i].tel)===tl){f=DB[i];break;}}
   if(!f){document.getElementById('id-err').style.display='block';return;}
   document.getElementById('id-err').style.display='none';
   cg=f;nacc=0;nef_=0;efp=false;
@@ -472,6 +475,23 @@ function selEf(v){efp=v;document.getElementById('eoy').classList.toggle('sel',v)
 function chEf(d){nef_=Math.max(1,Math.min(cg?cg.emax:0,nef_+d));document.getElementById('nef').textContent=nef_;}
 function goS3(){showStep(3);}
 function backFromMsg(){ showStep(att?2:1); }
+function toggleNameEdit(){
+  var e=document.getElementById('name-edit');
+  if(e.style.display==='none'){
+    e.style.display='block';
+    document.getElementById('fix-pr').value=cg?cg.pr:'';
+  } else { e.style.display='none'; }
+}
+function saveName(){
+  var v=document.getElementById('fix-pr').value.trim();
+  if(!v){toast('Entrez votre prenom');return;}
+  if(!cg)return;
+  cg.pr=v;
+  saveGuest(cg);
+  document.getElementById('wname').textContent='Bonjour, '+v+' !';
+  document.getElementById('name-edit').style.display='none';
+  toast('Prenom mis a jour');
+}
 function submitRSVP(){
   if(!cg)return;
   cg.st=att?'oui':'non';cg.ac=nacc;cg.ec=efp?nef_:0;cg.msg=document.getElementById('mtxt').value.trim();
