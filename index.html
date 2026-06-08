@@ -30,6 +30,8 @@ html,body{height:100%;overflow:hidden;background:#0D0B0A;color:#FAF6EE;font-fami
 .cd-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:#C9A96E;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.9)}
 .cd-sep{font-family:'Cormorant Garamond',serif;font-size:28px;color:#6B1E2E;align-self:flex-start;margin-top:4px}
 .cd-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:#E8D5A3}
+.btn-back{width:100%;padding:14px;background:transparent;border:1px solid rgba(201,169,110,.25);color:#C9A96E;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;margin-top:10px;-webkit-tap-highlight-color:transparent}
+.btn-back:active{opacity:.8}
 .btn-main{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:340px;margin:0 auto;padding:18px 32px;background:linear-gradient(135deg,#6B1E2E,#4A1020);border:1px solid rgba(201,169,110,.4);color:#E8D5A3;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;cursor:pointer;transition:all .3s}
 .btn-main:active{transform:scale(.98)}
 
@@ -198,6 +200,7 @@ textarea.tinp{width:100%;background:rgba(240,232,216,.05);border:1px solid rgba(
           <div class="choice" id="cn" onclick="selAtt(false)"><div class="clbl">Non</div><div class="csub">Je serai absent(e)</div></div>
         </div>
         <button class="btn-act" onclick="goS2()">Continuer &rarr;</button>
+        <button class="btn-back" onclick="showStep(0)">&#8592; Retour</button>
       </div>
 
       <div class="step" id="s2">
@@ -231,6 +234,7 @@ textarea.tinp{width:100%;background:rgba(240,232,216,.05);border:1px solid rgba(
           </div>
         </div>
         <button class="btn-act" onclick="goS3()" style="margin-top:18px">Continuer &rarr;</button>
+        <button class="btn-back" onclick="showStep(1)">&#8592; Retour</button>
       </div>
 
       <div class="step" id="s3">
@@ -241,6 +245,7 @@ textarea.tinp{width:100%;background:rgba(240,232,216,.05);border:1px solid rgba(
         <label class="flbl">Votre message</label>
         <textarea class="tinp" id="mtxt" rows="4" placeholder="Vos mots du coeur..."></textarea>
         <button class="btn-act" onclick="submitRSVP()">&#10022; Confirmer d&eacute;finitivement</button>
+        <button class="btn-back" onclick="backFromMsg()">&#8592; Retour</button>
       </div>
 
       <div class="step" id="s4">
@@ -466,6 +471,7 @@ function chAcc(d){
 function selEf(v){efp=v;document.getElementById('eoy').classList.toggle('sel',v);document.getElementById('eon').classList.toggle('sel',!v);document.getElementById('nef-sec').style.display=v?'block':'none';if(!v)nef_=0;else{nef_=1;document.getElementById('nef').textContent='1';}}
 function chEf(d){nef_=Math.max(1,Math.min(cg?cg.emax:0,nef_+d));document.getElementById('nef').textContent=nef_;}
 function goS3(){showStep(3);}
+function backFromMsg(){ showStep(att?2:1); }
 function submitRSVP(){
   if(!cg)return;
   cg.st=att?'oui':'non';cg.ac=nacc;cg.ec=efp?nef_:0;cg.msg=document.getElementById('mtxt').value.trim();
@@ -514,9 +520,9 @@ function bdg(st){return '<span class="bdg '+(st==='oui'?'by':st==='non'?'bn':'bp
 function abtn(id){return '<button onclick="editG('+id+')" style="background:transparent;border:1px solid rgba(201,169,110,.2);color:#C9A96E;padding:3px 7px;cursor:pointer;font-size:10px;margin-right:3px">&#9998;</button><button onclick="delG('+id+')" style="background:transparent;border:1px solid rgba(107,30,46,.3);color:#8B2E42;padding:3px 7px;cursor:pointer;font-size:10px">&#10005;</button>';}
 
 function renderDash(){
-  var tot=DB.length,oui=0,non=0,at=0,pers=0;
-  DB.forEach(function(g){if(g.st==='oui'){oui++;pers+=1+g.ac+g.ec;}else if(g.st==='non')non++;else at++;});
-  document.getElementById('sg').innerHTML='<div class="scard"><div class="snum">'+tot+'</div><div class="slbl">Invites</div></div><div class="scard"><div class="snum" style="color:#C9A96E">'+oui+'</div><div class="slbl">Confirmes</div></div><div class="scard"><div class="snum" style="color:#8B2E42">'+non+'</div><div class="slbl">Absents</div></div><div class="scard"><div class="snum">'+at+'</div><div class="slbl">Attente</div></div><div class="scard"><div class="snum" style="color:#C9A96E">'+pers+'</div><div class="slbl">Attendues</div></div><div class="scard"><div class="snum">'+DB.filter(function(g){return g.msg;}).length+'</div><div class="slbl">Messages</div></div>';
+  var tot=DB.length,oui=0,non=0,at=0,pers=0,enf=0,acc=0;
+  DB.forEach(function(g){if(g.st==='oui'){oui++;pers+=1+g.ac+g.ec;enf+=g.ec;acc+=g.ac;}else if(g.st==='non')non++;else at++;});
+  document.getElementById('sg').innerHTML='<div class="scard"><div class="snum">'+tot+'</div><div class="slbl">Invites</div></div><div class="scard"><div class="snum" style="color:#C9A96E">'+oui+'</div><div class="slbl">Confirmes</div></div><div class="scard"><div class="snum" style="color:#8B2E42">'+non+'</div><div class="slbl">Absents</div></div><div class="scard"><div class="snum">'+at+'</div><div class="slbl">Attente</div></div><div class="scard"><div class="snum" style="color:#C9A96E">'+pers+'</div><div class="slbl">Total attendues</div></div><div class="scard"><div class="snum">'+acc+'</div><div class="slbl">Accompagnants</div></div><div class="scard"><div class="snum">'+enf+'</div><div class="slbl">Enfants</div></div><div class="scard"><div class="snum">'+DB.filter(function(g){return g.msg;}).length+'</div><div class="slbl">Messages</div></div>';
   document.getElementById('tb0').innerHTML=DB.map(function(g){return '<tr><td><strong style="color:#FAF6EE">'+g.pr+' '+g.nm+'</strong></td><td style="font-size:11px;color:#6B5F54">'+g.tel+'</td><td>'+bdg(g.st)+'</td><td>'+g.ac+'</td><td>'+abtn(g.id)+'</td></tr>';}).join('');
   document.getElementById('tb1').innerHTML=DB.filter(function(g){return g.st==='oui';}).map(function(g){return '<tr><td><strong style="color:#FAF6EE">'+g.pr+' '+g.nm+'</strong></td><td>'+g.ac+'</td><td>'+g.ec+'</td><td style="color:#C9A96E;font-size:18px">'+(1+g.ac+g.ec)+'</td></tr>';}).join('');
   document.getElementById('tb2').innerHTML=DB.filter(function(g){return g.st==='non';}).map(function(g){return '<tr><td><strong style="color:#FAF6EE">'+g.pr+' '+g.nm+'</strong></td><td style="font-size:11px">'+g.tel+'</td></tr>';}).join('');
